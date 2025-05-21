@@ -8,21 +8,15 @@ import {
   FiAlertCircle,
   FiSettings,
   FiTrash2,
-  FiCheckCircle
+  FiCheckCircle,
+  FiGithub,
+  FiCpu,
+  FiServer,
+  FiCreditCard,
+  FiRefreshCw,
+  FiUserCheck
 } from 'react-icons/fi';
-
-type NotificationType = 'info' | 'success' | 'warning' | 'error';
-
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: NotificationType;
-  timestamp: string;
-  read: boolean;
-  actionLabel?: string;
-  actionUrl?: string;
-}
+import { Notification, NotificationType, NotificationPriority } from '../../types/notification';
 
 interface NotificationCenterProps {
   isOpen: boolean;
@@ -34,51 +28,90 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: '1',
+      type: NotificationType.FEATURE_UPDATED,
       title: 'New Feature Available',
       message: 'Try out our new code completion feature in the editor.',
-      type: 'info',
-      timestamp: '10 minutes ago',
+      timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
+      priority: NotificationPriority.MEDIUM,
+      duration: 5000,
       read: false,
+      actionable: true,
       actionLabel: 'Try Now',
       actionUrl: '#',
     },
     {
       id: '2',
+      type: NotificationType.SYSTEM_SUCCESS,
       title: 'Project Saved',
       message: 'Your project has been successfully saved to the cloud.',
-      type: 'success',
-      timestamp: '1 hour ago',
+      timestamp: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
+      priority: NotificationPriority.LOW,
+      duration: 3000,
       read: true,
+      actionable: false,
     },
     {
       id: '3',
+      type: NotificationType.SYSTEM_WARNING,
       title: 'Session Expiring Soon',
       message: 'Your session will expire in 15 minutes. Please save your work.',
-      type: 'warning',
-      timestamp: '5 minutes ago',
+      timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+      priority: NotificationPriority.HIGH,
+      duration: 8000,
       read: false,
+      actionable: true,
       actionLabel: 'Extend Session',
       actionUrl: '#',
     },
     {
       id: '4',
+      type: NotificationType.TASK_FAILED,
       title: 'Failed to Deploy',
       message: 'Your project deployment failed. Check the logs for more details.',
-      type: 'error',
-      timestamp: '2 hours ago',
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      priority: NotificationPriority.HIGH,
+      duration: 8000,
       read: false,
+      actionable: true,
       actionLabel: 'View Logs',
       actionUrl: '#',
     },
     {
       id: '5',
+      type: NotificationType.SYSTEM_INFO,
       title: 'Weekly Summary',
       message: 'Your weekly activity summary is now available.',
-      type: 'info',
-      timestamp: '1 day ago',
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+      priority: NotificationPriority.LOW,
+      duration: 3000,
       read: true,
+      actionable: true,
       actionLabel: 'View Summary',
       actionUrl: '#',
+    },
+    {
+      id: '6',
+      type: NotificationType.GITHUB_PR_CREATED,
+      title: 'Pull Request Created',
+      message: 'Your pull request #42 has been created successfully.',
+      timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+      priority: NotificationPriority.MEDIUM,
+      duration: 5000,
+      read: false,
+      actionable: true,
+      actionLabel: 'View PR',
+      actionUrl: '#',
+    },
+    {
+      id: '7',
+      type: NotificationType.AGENT_CONNECTED,
+      title: 'Agent Connected',
+      message: 'AI assistant is now connected and ready to help.',
+      timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+      priority: NotificationPriority.LOW,
+      duration: 3000,
+      read: true,
+      actionable: false,
     },
   ]);
 
@@ -111,31 +144,104 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
   );
 
   const unreadCount = notifications.filter((notification) => !notification.read).length;
+  
+  const formatTimestamp = (timestamp: Date): string => {
+    const now = new Date();
+    const diff = now.getTime() - timestamp.getTime();
+    
+    // Less than a minute
+    if (diff < 60 * 1000) {
+      return 'Just now';
+    }
+    
+    // Less than an hour
+    if (diff < 60 * 60 * 1000) {
+      const minutes = Math.floor(diff / (60 * 1000));
+      return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+    }
+    
+    // Less than a day
+    if (diff < 24 * 60 * 60 * 1000) {
+      const hours = Math.floor(diff / (60 * 60 * 1000));
+      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    }
+    
+    // Less than a week
+    if (diff < 7 * 24 * 60 * 60 * 1000) {
+      const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+      return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+    }
+    
+    // Format as date
+    return timestamp.toLocaleDateString();
+  };
 
   const getNotificationIcon = (type: NotificationType) => {
-    switch (type) {
-      case 'info':
-        return <FiInfo className="text-status-info" />;
-      case 'success':
-        return <FiCheckCircle className="text-status-success" />;
-      case 'warning':
-        return <FiAlertTriangle className="text-status-warning" />;
-      case 'error':
-        return <FiAlertCircle className="text-status-error" />;
+    // System notifications
+    if (type === NotificationType.SYSTEM_INFO) return <FiInfo className="text-status-info" />;
+    if (type === NotificationType.SYSTEM_SUCCESS) return <FiCheckCircle className="text-status-success" />;
+    if (type === NotificationType.SYSTEM_WARNING) return <FiAlertTriangle className="text-status-warning" />;
+    if (type === NotificationType.SYSTEM_ERROR) return <FiAlertCircle className="text-status-error" />;
+    
+    // Connection notifications
+    if (type.startsWith('connection_')) return <FiServer className="text-status-info" />;
+    
+    // Agent notifications
+    if (type.startsWith('agent_')) return <FiCpu className="text-primary-500" />;
+    
+    // Task notifications
+    if (type.startsWith('task_')) {
+      if (type === NotificationType.TASK_COMPLETED) return <FiCheckCircle className="text-status-success" />;
+      if (type === NotificationType.TASK_FAILED) return <FiAlertCircle className="text-status-error" />;
+      return <FiRefreshCw className="text-status-info" />;
     }
+    
+    // GitHub notifications
+    if (type.startsWith('github_')) return <FiGithub className="text-gray-700 dark:text-gray-300" />;
+    
+    // User account notifications
+    if (type.startsWith('user_')) return <FiUserCheck className="text-primary-500" />;
+    
+    // Billing notifications
+    if (type.startsWith('billing_')) return <FiCreditCard className="text-status-info" />;
+    
+    // Feature notifications
+    if (type.startsWith('feature_')) return <FiInfo className="text-primary-500" />;
+    
+    // Update notifications
+    if (type.startsWith('update_')) return <FiRefreshCw className="text-status-info" />;
+    
+    // Default
+    return <FiInfo className="text-status-info" />;
   };
 
   const getNotificationColor = (type: NotificationType) => {
-    switch (type) {
-      case 'info':
-        return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
-      case 'success':
-        return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
-      case 'warning':
-        return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
-      case 'error':
-        return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
-    }
+    // System notifications
+    if (type === NotificationType.SYSTEM_INFO) 
+      return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
+    if (type === NotificationType.SYSTEM_SUCCESS) 
+      return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
+    if (type === NotificationType.SYSTEM_WARNING) 
+      return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
+    if (type === NotificationType.SYSTEM_ERROR) 
+      return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+    
+    // GitHub notifications
+    if (type.startsWith('github_')) 
+      return 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800';
+    
+    // Agent notifications
+    if (type.startsWith('agent_')) 
+      return 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800';
+    
+    // Task notifications
+    if (type === NotificationType.TASK_COMPLETED) 
+      return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
+    if (type === NotificationType.TASK_FAILED) 
+      return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+    
+    // Default
+    return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
   };
 
   if (!isOpen) return null;
@@ -240,7 +346,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
                       </h3>
                       <div className="flex items-center ml-2">
                         <span className="text-xs text-text-tertiary whitespace-nowrap">
-                          {notification.timestamp}
+                          {formatTimestamp(notification.timestamp)}
                         </span>
                         <button
                           onClick={() => deleteNotification(notification.id)}

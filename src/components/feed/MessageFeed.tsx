@@ -5,13 +5,21 @@ import PreviewPanel from '../preview/PreviewPanel';
 
 interface MessageFeedProps {
   messages: Message[];
+  onPreviewMessage?: (message: Message) => void;
 }
 
-const MessageFeed: React.FC<MessageFeedProps> = ({ messages }) => {
+const MessageFeed: React.FC<MessageFeedProps> = ({ 
+  messages,
+  onPreviewMessage 
+}) => {
   const [previewMessage, setPreviewMessage] = useState<Message | null>(null);
   
   const handlePreview = (message: Message) => {
-    setPreviewMessage(message);
+    if (onPreviewMessage) {
+      onPreviewMessage(message);
+    } else {
+      setPreviewMessage(message);
+    }
   };
   
   const closePreview = () => {

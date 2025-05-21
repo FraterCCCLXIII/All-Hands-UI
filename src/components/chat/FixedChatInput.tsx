@@ -6,9 +6,10 @@ import {
   FiSquare, 
   FiCpu,
   FiLink,
-  FiUnlink
+  FiUnlink,
+  FiActivity
 } from 'react-icons/fi';
-import AIModeSelector, { AIMode } from './AIModeSelector';
+import { AIMode } from './FixedAIModeSelector';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -22,7 +23,7 @@ interface ChatInputProps {
   isGitHubConnected?: boolean;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({
+const FixedChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
   placeholder = 'Type a message...',
   disabled = false,
@@ -110,11 +111,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <span>{isProcessRunning ? 'Stop' : 'Start'}</span>
           </button>
           
-          {/* AI Mode Selector */}
-          <AIModeSelector 
-            selectedMode={aiMode} 
-            onModeChange={setAIMode} 
-          />
+          {/* AI Mode Selector (simplified) */}
+          <div className="relative">
+            <button
+              className="flex items-center gap-2 px-3 py-2 rounded-md bg-background-secondary hover:bg-background-tertiary text-text-secondary transition-colors"
+            >
+              <span className="text-primary-500">
+                <FiActivity />
+              </span>
+              <span className="text-sm font-medium">General</span>
+            </button>
+          </div>
         </div>
       </div>
       
@@ -150,4 +157,4 @@ const ChatInput: React.FC<ChatInputProps> = ({
   );
 };
 
-export default ChatInput;
+export default FixedChatInput;
