@@ -35,7 +35,7 @@ const LeftDrawer: React.FC<LeftDrawerProps> = ({
     <div className={`fixed md:relative left-0 top-0 h-screen z-30 transition-all duration-300 ${
       isOpen ? 'w-64' : 'w-0 md:w-16'
     }`}>
-      <div className={`h-full bg-background-secondary border-r border-border-primary flex flex-col ${
+      <div className={`h-full min-h-screen bg-background-secondary border-r border-border-primary flex flex-col ${
         isOpen ? 'w-64' : 'w-0 md:w-16'
       } transition-all duration-300 overflow-hidden shadow-lg`}>
         {/* Drawer Header with Logo and Toggle */}

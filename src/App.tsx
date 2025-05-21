@@ -134,7 +134,7 @@ function App() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
   const [userProfileOpen, setUserProfileOpen] = useState(false);
-  const [welcomeScreenOpen, setWelcomeScreenOpen] = useState(true);
+  const [welcomeScreenOpen, setWelcomeScreenOpen] = useState(false);
   const [emptyStateOpen, setEmptyStateOpen] = useState(false);
   const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
@@ -243,7 +243,7 @@ console.log(greet('OpenHands'));
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background-primary text-text-primary flex">
+      <div className="min-h-screen h-screen bg-background-primary text-text-primary flex overflow-hidden">
         {/* Left Navigation Drawer */}
         <LeftDrawer 
           isOpen={drawerOpen}
@@ -257,7 +257,7 @@ console.log(greet('OpenHands'));
         />
         
         {/* Main Content */}
-        <div className="flex-1 flex flex-col h-screen">
+        <div className="flex-1 flex flex-col h-screen overflow-hidden">
           {/* Top navigation bar */}
           <div className="bg-background-secondary border-b border-border-primary p-2 flex items-center justify-between">
             <div className="flex items-center">
