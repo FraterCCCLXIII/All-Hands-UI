@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  FiBrain, 
+  FiActivity, 
   FiSearch, 
   FiCode, 
   FiCheckSquare, 
@@ -34,13 +34,13 @@ const AI_MODE_OPTIONS: AIModeOption[] = [
     id: AIMode.GENERAL,
     label: 'General',
     description: 'AI will respond to any type of request',
-    icon: <FiBrain />
+    icon: <FiActivity />
   },
   {
     id: AIMode.THINKING,
     label: 'Thinking',
     description: 'AI will focus on problem-solving and analysis',
-    icon: <FiBrain />
+    icon: <FiActivity />
   },
   {
     id: AIMode.RESEARCH,
