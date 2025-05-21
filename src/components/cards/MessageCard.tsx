@@ -105,7 +105,10 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onPreview }) => {
   };
   
   return (
-    <div className={`rounded-lg border ${getBorderColor()} ${getBackgroundColor()} p-4 mb-4 transition-all hover:shadow-md`}>
+    <div 
+      className={`rounded-lg border ${getBorderColor()} ${getBackgroundColor()} p-4 mb-4 transition-all hover:shadow-md cursor-pointer`}
+      onClick={onPreview}
+    >
       {/* Card Header */}
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-2">
@@ -116,7 +119,7 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onPreview }) => {
       </div>
       
       {/* Card Content */}
-      <div className="mb-3">
+      <div className="mb-3 max-w-3xl mx-auto">
         {type === 'code' ? (
           <pre className="bg-background-tertiary p-3 rounded-md overflow-x-auto">
             <code>{content}</code>
@@ -126,12 +129,18 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onPreview }) => {
             <img 
               src={content} 
               alt="Message attachment" 
-              className="rounded-md max-h-40 object-cover cursor-pointer"
-              onClick={onPreview}
+              className="rounded-md max-h-40 object-cover"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPreview && onPreview();
+              }}
             />
             <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
               <button 
-                onClick={onPreview}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPreview && onPreview();
+                }}
                 className="bg-background-primary p-2 rounded-full"
               >
                 <FiMaximize2 />
@@ -139,19 +148,28 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onPreview }) => {
             </div>
           </div>
         ) : (
-          <p className="text-text-primary">{content}</p>
+          <p className="text-text-primary break-words max-w-prose">{content}</p>
         )}
       </div>
       
       {/* Card Actions */}
       <div className="flex justify-end gap-2">
         <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            // Copy content logic here
+            navigator.clipboard.writeText(content);
+          }}
           className="p-1.5 text-text-secondary hover:text-text-primary rounded-md hover:bg-background-tertiary transition-colors"
           aria-label="Copy content"
         >
           <FiCopy size={16} />
         </button>
         <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            // Share logic here
+          }}
           className="p-1.5 text-text-secondary hover:text-text-primary rounded-md hover:bg-background-tertiary transition-colors"
           aria-label="Share"
         >
@@ -159,7 +177,10 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onPreview }) => {
         </button>
         {isExpandable && (
           <button 
-            onClick={onPreview}
+            onClick={(e) => {
+              e.stopPropagation();
+              onPreview && onPreview();
+            }}
             className="p-1.5 text-text-secondary hover:text-text-primary rounded-md hover:bg-background-tertiary transition-colors"
             aria-label="Expand"
           >

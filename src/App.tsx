@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './styles/App.css';
 import { ThemeProvider } from './context/ThemeContext';
 import ChatInterface from './components/chat/ChatInterface';
+import ChatInput from './components/chat/ChatInput';
 import CodeEditor from './components/code/CodeEditor';
 import LeftDrawer from './components/navigation/LeftDrawer';
 import MessageFeed from './components/feed/MessageFeed';
@@ -10,9 +11,11 @@ import CommandPalette from './components/command/CommandPalette';
 import KeyboardShortcuts from './components/help/KeyboardShortcuts';
 import UserProfile from './components/profile/UserProfile';
 import WelcomeScreen from './components/onboarding/WelcomeScreen';
+import EmptyState from './components/onboarding/EmptyState';
 import FileExplorer from './components/files/FileExplorer';
 import NotificationCenter from './components/notifications/NotificationCenter';
 import GlobalSearch from './components/search/GlobalSearch';
+import PreviewPanel from './components/preview/PreviewPanel';
 import { ConversationItem, Message } from './types/conversation';
 import { v4 as uuidv4 } from 'uuid';
 import { FiSearch, FiBell, FiCommand, FiUser, FiHelpCircle } from 'react-icons/fi';
@@ -132,9 +135,14 @@ function App() {
   const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
   const [userProfileOpen, setUserProfileOpen] = useState(false);
   const [welcomeScreenOpen, setWelcomeScreenOpen] = useState(true);
+  const [emptyStateOpen, setEmptyStateOpen] = useState(false);
   const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [showFileExplorer, setShowFileExplorer] = useState(false);
+  const [previewMessage, setPreviewMessage] = useState<Message | null>(null);
+  const [isAgentConnected, setIsAgentConnected] = useState(true);
+  const [isProcessRunning, setIsProcessRunning] = useState(false);
+  const [isGitHubConnected, setIsGitHubConnected] = useState(false);
   
   // Content state
   const [activeTab, setActiveTab] = useState<'chat' | 'code'>('chat');
@@ -360,10 +368,12 @@ console.log(greet('OpenHands'));
                     </h2>
                   </div>
                   <div className="flex-1 overflow-hidden flex flex-col">
-                    <MessageFeed messages={messages} />
+                    <MessageFeed 
+                      messages={messages} 
+                      onPreviewMessage={setPreviewMessage}
+                    />
                     <div className="p-4 border-t border-border-primary">
-                      <ChatInterface
-                        initialMessages={[]}
+                      <ChatInput
                         onSendMessage={(content) => {
                           const newUserMessage: Message = {
                             id: uuidv4(),
@@ -388,6 +398,12 @@ console.log(greet('OpenHands'));
                             setMessages(prev => [...prev, newAssistantMessage]);
                           }, 1000);
                         }}
+                        isAgentConnected={isAgentConnected}
+                        isProcessRunning={isProcessRunning}
+                        onStartProcess={() => setIsProcessRunning(true)}
+                        onStopProcess={() => setIsProcessRunning(false)}
+                        onConnectGitHub={() => setIsGitHubConnected(!isGitHubConnected)}
+                        isGitHubConnected={isGitHubConnected}
                       />
                     </div>
                   </div>
@@ -443,7 +459,23 @@ console.log(greet('OpenHands'));
         
         <WelcomeScreen 
           isOpen={welcomeScreenOpen} 
-          onComplete={() => setWelcomeScreenOpen(false)} 
+          onComplete={() => {
+            setWelcomeScreenOpen(false);
+            setEmptyStateOpen(true);
+          }} 
+        />
+        
+        <EmptyState
+          isOpen={emptyStateOpen}
+          onCreateProject={() => {
+            setEmptyStateOpen(false);
+            createNewConversation();
+          }}
+          onSelectFromGitHub={() => {
+            setEmptyStateOpen(false);
+            setIsGitHubConnected(true);
+            createNewConversation();
+          }}
         />
         
         <NotificationCenter 
@@ -459,6 +491,13 @@ console.log(greet('OpenHands'));
             setGlobalSearchOpen(false);
           }}
         />
+        
+        {previewMessage && (
+          <PreviewPanel 
+            message={previewMessage} 
+            onClose={() => setPreviewMessage(null)} 
+          />
+        )}
       </div>
     </ThemeProvider>
   );

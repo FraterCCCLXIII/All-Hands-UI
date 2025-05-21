@@ -32,12 +32,12 @@ const LeftDrawer: React.FC<LeftDrawerProps> = ({
   onOpenDocumentation
 }) => {
   return (
-    <div className={`fixed md:relative left-0 top-0 h-full z-30 transition-all duration-300 ${
+    <div className={`fixed md:relative left-0 top-0 h-screen z-30 transition-all duration-300 ${
       isOpen ? 'w-64' : 'w-0 md:w-16'
     }`}>
       <div className={`h-full bg-background-secondary border-r border-border-primary flex flex-col ${
         isOpen ? 'w-64' : 'w-0 md:w-16'
-      } transition-all duration-300 overflow-hidden`}>
+      } transition-all duration-300 overflow-hidden shadow-lg`}>
         {/* Drawer Header with Logo and Toggle */}
         <div className="p-4 border-b border-border-primary flex items-center justify-between">
           <div className={`flex items-center ${isOpen ? 'justify-between w-full' : 'justify-center'}`}>
