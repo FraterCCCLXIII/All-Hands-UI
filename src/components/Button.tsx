@@ -1,26 +1,34 @@
 import React from 'react';
 
 interface ButtonProps {
-  text: string;
+  children?: React.ReactNode;
+  text?: string;
   onClick?: () => void;
   variant?: 'primary' | 'secondary' | 'danger';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
+  fullWidth?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  icon?: React.ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({
+  children,
   text,
   onClick,
   variant = 'primary',
   size = 'medium',
   disabled = false,
+  fullWidth = false,
+  type = 'button',
+  icon,
 }) => {
   const baseClasses = 'rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const variantClasses = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-700 dark:hover:bg-primary-600',
+    secondary: 'bg-secondary-200 text-secondary-800 hover:bg-secondary-300 focus:ring-secondary-500 dark:bg-secondary-700 dark:text-secondary-100 dark:hover:bg-secondary-600',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600',
   };
   
   const sizeClasses = {
@@ -30,16 +38,23 @@ const Button: React.FC<ButtonProps> = ({
   };
   
   const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';
+  const widthClass = fullWidth ? 'w-full' : '';
   
-  const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${disabledClasses}`;
+  const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${disabledClasses} ${widthClass}`;
   
   return (
     <button
       className={classes}
       onClick={onClick}
       disabled={disabled}
+      type={type}
     >
-      {text}
+      {icon && (
+        <span className={`inline-flex items-center ${text || children ? 'mr-2' : ''}`}>
+          {icon}
+        </span>
+      )}
+      {text || children}
     </button>
   );
 };
